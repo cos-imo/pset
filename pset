@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# PSet - 2025
+
+# Debugging
+if [[ ${DEBUG-} =~ ^1|yes|true$ ]]; then
+    set -o xtrace       # Trace the execution of the script (debug)
+fi
+
+PROJECT_NAME="${*: -1}"
+
+# Checking if enough arguments where given
+
+if (($# < 1)); then
+  echo "Usage: pset [OPTIONS] PROJECT_NAME"
+fi
+
+
+if ! printf '%s' "$PROJECT_NAME" | grep -Eq '^[A-Za-z0-9._-]+$'; then
+  echo "Error: PROJECT_NAME must contain only letters, digits, dots, underscores, or hyphens."
+  exit 1
+fi
+
+PSET_DIR=$HOME/.config/pset
+
+PYTHON_MODULE=false
+PYTHON_PROJECT=false
+
+# Parsing arguments
+
+while [ $# -gt 0 ] ; do
+  case $1 in
+    -v | --verbose) VERBOSE=true ;;
+    -p | --python) PYTHON_PROJECT=true ;;
+    -m | --module) PYTHON_MODULE=true ;;
+  esac
+  shift
+done
+
+# Log function
+log() {
+  [ "$VERBOSE" = true ] && printf '%s\n' "$1"
+}
+
+load() {
+    local msg="$1"
+    shift
+
+    gum spin --title "$msg" -- "$@"
+}
+
+if [ "$PYTHON_PROJECT" = true ] || [ "$PYTHON_MODULE" = true ]; then
+
+  echo "ok"
+
+  log "Setting up project directory..."
+
+  if [ "$PYTHON_PROJECT" = true ]; then
+
+    cp -r  "$PSET_DIR/templates/pset_python_project_template_module" .
+
+  fi
+
+  if [ "$PYTHON_MODULE" = true ]; then
+
+    cp -r "$PSET_DIR/templates/pset_python_project_template_module" .
+
+  fi
+
+  log "Done!"
+
+  log "Renaming project root folder..."
+  mv ./pset_python_project_template_module "$PROJECT_NAME"
+  cd "$PROJECT_NAME" || exit
+  log "Done!"
+
+  load "Initalizing $(gum style --foreground "#04B575" "virtual environment") (runnning: python3 -m venv .venv) ..." python3 -m venv .venv 
+
+  log "Done!"
+
+  log "Setting up git repository..."
+
+  git init
+
+  log "Done!"
+
+fi

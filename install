@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+gum style \
+	--foreground 212 --border-foreground 212 --border double \
+	--align center --width 50 --margin "1 2" --padding "2 4" \
+	'PSET Installer'
+
+# cp pset conf /usr/local/lib
+
+if [ -d $HOME/.config/pset ]; then
+  echo "Installation folder $(gum style --foreground 212 '$HOME/.config/pset') already exists."
+  gum confirm "Erase it and start over?" && rm -rf $HOME/.config/pset || echo "ERROR : Deletion failed. Aborting."
+fi
+
+mkdir -p $HOME/.config/pset/libs
+cp helpers $HOME/.config/pset/libs
+
+gum style "Installation completed $(gum style --foreground "#04B575" "successfully")"
